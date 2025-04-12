@@ -1,0 +1,92 @@
+#############1
+D:
+cd tpBigdata_5\MongoDB\bin
+mongod.exe --dbpath D:\tpBigdata_5\data\db
+*********************
+D:
+cd tpBigdata_5\MongoDB\bin
+mongo.exe
+
+#################2
+use info   // *create db info
+
+*create  produits
+
+db.produits.insert({
+  nom: "Macbook Pro",
+  fabriquant: "Apple",
+  prix: 11435.99,
+  options: ["Intel Core i5", "Retina Display", "Long life battery"]
+})
+db.produits.insert({
+  nom: "Macbook Air",
+  fabriquant: "Apple",
+  prix: 125794.73,
+  ultrabook: true,
+  options: ["Intel Core i7", "SSD", "Long life battery"]
+})
+db.produits.insert({
+  nom: "Thinkpad X230",
+  fabriquant: "Lenovo",
+  prix: 114358.74,
+  ultrabook: true,
+  options: ["Intel Core i5", "SSD", "Long life battery"]
+})
+
+####################e الاستعلامات 
+
+db.produits.find() // أ. استرجاع جميع المنتجات
+
+
+db.produits.findOne() // ب. استرجاع أول منتج
+
+ج. العثور على معرف Thinkpad واسترجاعه
+
+var thinkpadId = db.produits.findOne({nom: "Thinkpad X230"})._id  //// أولاً نجد الـ _id
+
+db.produits.findOne({_id: thinkpadId}) //// ثم نسترجعه باستخدام الـ _id
+
+
+db.produits.find({prix: {$gt: 13723}}) // د. منتجات بسعر أكبر من 13723
+
+
+db.produits.findOne({ultrabook: true}) // هـ. أول منتج بحقل ultrabook = true
+
+db.produits.findOne({nom: /Macbook/}) // و. أول منتج يحتوي اسمه على "Macbook"
+
+
+
+db.produits.find({nom: /^Macbook/}) // ز. منتجات تبدأ أسماؤها بـ "Macbook"
+
+6. عمليات الحذف
+
+
+db.produits.remove({fabriquant: "Apple"})  // أ. حذف منتجات Apple
+
+
+
+db.produits.remove({_id: thinkpadId})  // ب. حذف Lenovo X230 باستخدام الـ _id
+
+###############
+ملاحضات
+use info       // الدخول إلى قاعدة بيانات info
+db             // للتأكد أنك في info
+
+
+db.produits.count() // التحقق من عدد المستندات المتبقية بأمر
+
+
+show dbs //لرؤية جميع قواعد البيانات:
+
+
+show collections // لرؤية جميع المجموعات في قاعدة البيانات الحالية:
+
+db.getLastErrorObj()   //  للتحقق من عدد المستندات المحذوفة:
+
+لرؤية تأثير عملية الحذف:
+
+db.produits.find().count() // لمعرفة العدد المتبقي
+
+إذا أردت مسح قاعدة البيانات بالكامل:
+db.dropDatabase()
+

@@ -1,0 +1,87 @@
+
+docker run --name mon-cassandra -d cassandra  // تحميل وتشغيل Cassandra في حاوية Docker
+
+# نقل الملفات من جهازك إلى داخل الحاوية
+
+docker cp "D:/data_Bigdata/restaurants.csv" mon-cassandra:/
+docker cp "D:/data_Bigdata/restaurants_inspections.csv" mon-cassandra:/
+
+docker exec -it mon-cassandra cqlsh //  الدخول إلى cqlsh
+
+-- إنشاء Keyspace
+CREATE KEYSPACE IF NOT EXISTS resto_NY 
+WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor': 1 };
+
+-- اختيار الـ Keyspace
+USE resto_NY;
+
+-- إنشاء جدول Restaurant
+CREATE TABLE IF NOT EXISTS Restaurant (
+    id INT,
+    name VARCHAR,
+    borough VARCHAR,
+    buildingnum VARCHAR,
+    street VARCHAR,
+    zipcode INT,
+    phone TEXT,
+    cuisinetype VARCHAR,
+    PRIMARY KEY (id)
+);
+
+-- إنشاء جدول Inspection
+CREATE TABLE IF NOT EXISTS Inspection (
+    idrestaurant INT,
+    inspectiondate DATE,
+    violationcode VARCHAR,
+    violationdescription VARCHAR,
+    criticalflag VARCHAR,
+    score INT,
+    grade VARCHAR,
+    PRIMARY KEY (idrestaurant, inspectiondate)
+);
+
+-- إنشاء الفهارس
+CREATE INDEX IF NOT EXISTS fk_Restaurant_cuisine ON Restaurant (cuisinetype);
+CREATE INDEX IF NOT EXISTS fk_Inspection_Restaurant ON Inspection (grade);
+
+-- استيراد بيانات المطاعم
+COPY Restaurant (id, name, borough, buildingnum, street, zipcode, phone, cuisinetype)
+FROM '/restaurants.csv' WITH DELIMITER=',' AND HEADER=TRUE;
+
+-- استيراد بيانات التفتيش
+COPY Inspection (idrestaurant, inspectiondate, violationcode, violationdescription, criticalflag, score, grade)
+FROM '/restaurants_inspections.csv' WITH DELIMITER=',' AND HEADER=TRUE;
+
+-- التحقق من عدد السجلات
+SELECT count(*) FROM Restaurant; 
+SELECT count(*) FROM Inspection;
+
+//Requetes
+-- 1. عرض كل المطاعم
+SELECT * FROM Restaurant;
+
+-- 2. أسماء جميع المطاعم
+SELECT name FROM Restaurant;
+
+-- 3. اسم وحي المطعم برقم 41569764
+SELECT name, borough FROM Restaurant WHERE id = 41569764;
+
+-- 4. تواريخ ودرجات التفتيش للمطعم 41569764
+SELECT inspectiondate, grade FROM Inspection WHERE idrestaurant = 41569764;
+
+-- 5. أسماء المطاعم الفرنسية
+SELECT name FROM Restaurant WHERE cuisinetype = 'French';
+
+-- 6. مطاعم في BROOKLYN (مع ALLOW FILTERING)
+SELECT name FROM Restaurant WHERE borough = 'BROOKLYN' ALLOW FILTERING;
+
+-- 7. الدرجات والنقاط للمطعم 41569764 ونقطة ≥ 10
+SELECT grade, score FROM Inspection 
+WHERE idrestaurant = 41569764 AND score >= 10 
+ALLOW FILTERING;
+
+-- 8. درجات التفتيشات بنقاط > 30 ودرجات غير فارغة
+SELECT grade FROM Inspection WHERE score > 30 ALLOW FILTERING;
+
+-- 9. عدد النتائج للاستعلام السابق
+SELECT count(*) FROM Inspection WHERE score > 30 AND grade IS NOT NULL ALLOW FILTERING;
