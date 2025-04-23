@@ -1,0 +1,62 @@
+step 1
+1 install Apache kafka
+
+2 تشغيل Zookeeper
+cd D:\kafka\bin\windows
+zookeeper-server-start.bat ..\..\config\zookeeper.properties
+
+3 تشغيل Kafka
+cd D:\kafka\bin\windows
+kafka-server-start.bat ..\..\config\server.properties
+
+syep 2
+1 إنشاء Topic
+cd C:\kafka\bin\windows
+kafka-topics.bat --create --topic test-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+step 3
+مثال Producer / Consumer
+Producer 
+kafka-console-producer.bat --topic test-topic --bootstrap-server localhost:9092        // send msg
+Consumer
+kafka-console-consumer.bat --topic test-topic --from-beginning --bootstrap-server localhost:9092  // see msg
+
+step 4 
+1. نسخ ملف إعدادات broker
+D:\kafka\config
+server انشاء نسختين من ملف (server-1 , server-2)
+2. تعديل إعدادات كل ملف:
+broker.id=1/2
+listeners=PLAINTEXT://:9093/9094
+log.dirs=D:/kafka/kafka-logs-1/2
+
+3. تشغيل الـ brokers
+  لتشغيل broker الأول:
+cd D:\kafka\bin\windows
+kafka-server-start.bat ..\..\config\server-1.properties
+ لتشغيل broker الثاني:
+cd D:\kafka\bin\windows
+kafka-server-start.bat ..\..\config\server-2.properties
+
+4. إنشاء topic موزع على أكثر من broker
+cd D:\kafka\bin\windows
+kafka-topics.bat --create --topic distributed-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 2
+
+5. تجربة إرسال واستقبال رسائل على distributed-topic
+Producer
+kafka-console-producer.bat --topic distributed-topic --bootstrap-server localhost:9092
+Consumer
+kafka-console-consumer.bat --topic distributed-topic --from-beginning --bootstrap-server localhost:9092
+
+step 5 
+ مشروع Kafka مع أجهزة IoT (محاكاة)
+1.pip install kafka-python
+2.create Producer  جهاز استشعار وهمي
+3.create Consumer  المراقبة
+4. أنشئ topic مخصص لـ IoT:
+kafka-topics.bat --create --topic iot-topic --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+5. run producer_iot.py 
+6. run consumer_iot.py
+7.ruselt 
+Sent: Temperature: 74.56°C
+Received: Temperature: 74.56°C
