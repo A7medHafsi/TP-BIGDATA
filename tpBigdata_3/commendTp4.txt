@@ -11,12 +11,7 @@ docker ps -a // التحقق من حالة الحاوية
 // PART 2 //
 
 docker network create my-custom-ne    // create network
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/A7medHafsi/TP-BIGDATA.git
-git push -u origin main
+
 create container1
 docker run -d --name container1 --network my-custom-network -v D:\data_Bigdata a7medha/tpbigdata_3:latest tail -f /dev/null
 
