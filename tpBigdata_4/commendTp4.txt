@@ -1,0 +1,25 @@
+// PART 1 //
+
+Add Dokerfile in the project
+
+docker build -t a7medha/tpbigdata_3:latest .  // create image (build image)
+
+docker run --name copytpbigdata1 a7medha/tpbigdata_3:latest   // Run Container 
+
+docker ps -a // التحقق من حالة الحاوية 
+
+// PART 2 //
+
+docker network create my-custom-ne    // create network
+
+create container1
+docker run -d --name container1 --network my-custom-network -v D:\data_Bigdata a7medha/tpbigdata_3:latest tail -f /dev/null
+
+
+create container2
+docker run -d --name container2 --network my-custom-network -v D:\data_Bigdata a7medha/tpbigdata_3:latest tail -f /dev/null
+
+create container3
+docker run -d --name container3 --network my-custom-network -v D:\data_Bigdata a7medha/tpbigdata_3:latest tail -f /dev/null
+
+docker ps // التحقق من الحاويات
