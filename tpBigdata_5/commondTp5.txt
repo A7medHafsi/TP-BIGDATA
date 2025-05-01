@@ -1,4 +1,4 @@
-#############1
+step 1
 D:
 cd tpBigdata_5\MongoDB\bin
 mongod.exe --dbpath D:\tpBigdata_5\data\db
@@ -7,7 +7,7 @@ D:
 cd tpBigdata_5\MongoDB\bin
 mongo.exe
 
-#################2
+step 2
 use info   // *create db info
 
 *create  produits
@@ -33,7 +33,7 @@ db.produits.insert({
   options: ["Intel Core i5", "SSD", "Long life battery"]
 })
 
-####################e الاستعلامات 
+step 3 //commande
 
 db.produits.find() // أ. استرجاع جميع المنتجات
 
@@ -66,28 +66,4 @@ db.produits.remove({fabriquant: "Apple"})  // أ. حذف منتجات Apple
 
 
 db.produits.remove({_id: thinkpadId})  // ب. حذف Lenovo X230 باستخدام الـ _id
-
-###########################################################################################
-                                    ملاحضات     
-
-use info       // الدخول إلى قاعدة بيانات info
-db             // للتأكد أنك في info
-
-
-db.produits.count() // التحقق من عدد المستندات المتبقية بأمر
-
-
-show dbs //لرؤية جميع قواعد البيانات:
-
-
-show collections // لرؤية جميع المجموعات في قاعدة البيانات الحالية:
-
-db.getLastErrorObj()   //  للتحقق من عدد المستندات المحذوفة:
-
-لرؤية تأثير عملية الحذف:
-
-db.produits.find().count() // لمعرفة العدد المتبقي
-
-إذا أردت مسح قاعدة البيانات بالكامل:
-db.dropDatabase()
 
