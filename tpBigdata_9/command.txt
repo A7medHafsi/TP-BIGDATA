@@ -1,0 +1,57 @@
+part 1   Batch Processing (معالجة دفعية)
+
+step 1 // شغّل الكونتينرات الخاصة بـ Hadoop
+docker start hadoop-master hadoop-worker1 hadoop-worker2
+docker exec -it hadoop-master bash
+./start-hadoop.sh
+
+step 2 
+// إنشاء ملف file1.txt داخل كونتينر hadoop-master
+echo "Bonjour tout le monde. Spark est puissant." > file1.txt
+./start-hadoop.sh // تشغيل HDFS 
+hdfs dfs -mkdir -p /input // انشاء مجلد داخل HDFS 
+hdfs dfs -put file1.txt /input/  // حمّل الملف إلى HDFS
+hdfs dfs -ls /input // تحقق من أنه تم رفع الملف بنجاح
+
+step 3 
+spark-shell // الدخول الى Spark  
+
+val lines = sc.textFile("hdfs://hadoop-master:9000/input/file1.txt")
+val words = lines.flatMap(_.split("\\s+"))
+val counts = words.map(word => (word, 1)).reduceByKey(_ + _)
+counts.collect().foreach(println)
+
+result
+(tout,1)
+(est,1)
+(Spark,1)
+(le,1)
+(Bonjour,1)
+(puissant.,1)
+(monde.,1)
+
+part 2  Streaming Processing (معالجة تدفقية) 
+
+step 1
+create pom.xml
+create src/main/java/spark/streaming/tp22/Stream.java
+
+step 2 //  إعداد netcat لمحاكاة التدفق
+
+apt-get update // تحديث الحزم 
+apt-get install -y netcat // تثبيت netcat
+nc -lk 9999 // يبدأ الاستماع على المنفذ 9999
+Hello Spark Streaming Spark  // كتابة جملة للاختبار
+
+في نافذة اخرى جديدة 
+نسخ الملف ويضعه داخل مجلد /root في الحاوية باسم stream.jar //
+docker cp ^
+ "D:\BIGDATA\tpBigdata_9\spark_streaming\target\stream-1.0-SNAPSHOT.jar" ^
+ hadoop-master:/root/stream.jar 
+step 3 // تشغيل Spark-submit داخل الحاوية
+docker exec -it hadoop-master bash // فتح جلسة Bash في الحاوية
+ثم تنفيذ //
+spark-submit \
+  --class spark.streaming.tp22.Stream \
+  --master local[*] \
+  /root/stream.jar

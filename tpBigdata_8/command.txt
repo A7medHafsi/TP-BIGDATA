@@ -1,0 +1,59 @@
+step 1
+أنشاء شبكة Docker للاتصال بين الحاويات:
+docker network create hadoop
+شغّل الحاويات الثلاث (Master + Worker1 + Worker2):
+# الحاوية الرئيسية (Master)
+docker run -iid --net=hadoop -p 9870:9870 -p 8088:8088 -p 7077:7077 --name hadoop-master --hostname hadoop-master liliasfaxi/hadoop-cluster:latest
+
+# Worker 1
+docker run -iid -p 8040:8042 --net=hadoop --name hadoop-worker1 --hostname hadoop-worker1 liliasfaxi/hadoop-cluster:latest
+
+# Worker 2
+docker run -iid -p 8041:8042 --net=hadoop --name hadoop-worker2 --hostname hadoop-worker2 liliasfaxi/hadoop-cluster:latest
+تحقق من عمل الحاويات:
+docker ps
+
+step 2
+ تحميل ملف البيانات إلى HDFS
+ادخل إلى الحاوية الرئيسية (Master):
+docker exec -it hadoop-master bash
+ابدأ خدمات Hadoop داخل الحاوية:
+./start-hadoop.sh
+ نسخ الملف purchases.txtمن جهازي إلى الحاوية 
+docker cp purchases.txt hadoop-master:/root/
+أنشئ مجلد input في HDFS وحمّل الملف:
+hdfs dfs -mkdir -p /user/root   # إنشاء مجلد المستخدم
+hdfs dfs -mkdir input           # إنشاء مجلد الإدخال
+hdfs dfs -put purchases.txt input/  # رفع الملف إلى HDFS
+تحقق من أن الملف مُحمّل:
+hdfs dfs -ls input/
+
+step 3
+
+تشغيل برنامج MapReduce
+ تثبيت Maven 
+create pom.xml 
+create src\main\java\hadoop\mapreduce\tp1\WordCount.java
+create src\main\java\hadoop\mapreduce\tp1\TokenizerMapper.java
+create src\main\java\hadoop\mapreduce\tp1\IntSumReducer.java
+
+step 4
+
+تشغل بناء المشروع:
+mvn clean package   
+نسخه إلى الحاوية 
+docker cp target/wordcount-1.0-SNAPSHOT-jar-with-dependencies.jar hadoop-master:/root/wordcount.jar
+
+step 5
+
+docker start hadoop-master //  تشغيل الحاوية hadoop-master
+docker exec -it hadoop-master bash // الدخول الى الحاوية 
+./start-hadoop.sh   // تشغيل Hadoop
+hdfs dfs -mkdir -p input  // انشاء ملف الادخال HDFS 
+hdfs dfs -put purchases.txt input //
+hadoop jar wordcount.jar input output  //  تشغيل البرنامج
+hdfs dfs -cat output/part-r-00000   // عرض النتيجة 
+ruselt is:
+Toys        229964
+Visa        827221
+Video       230237
